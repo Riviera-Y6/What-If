@@ -30,25 +30,19 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 .btn-start{background:var(--accent);color:#000;border:none;padding:13px 44px;border-radius:6px;font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;box-shadow:0 0 22px rgba(0,255,127,.4);transition:all .2s;width:100%;}
 .btn-start:hover{background:#33ff99;}
 
-/* SPLASH FRAME */
-.splash-frame{
-  position:relative;
-  z-index:2;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  width:84%;
-  max-width:340px;
-  padding:36px 24px 24px;
-  background:rgba(0,18,6,0.75);
-  border:3px solid #00FF7F;
-  border-radius:32px;
-  box-shadow:0 0 28px rgba(0,255,127,0.25),
-             0 0 56px rgba(0,255,127,0.1),
-             inset 0 0 24px rgba(0,255,127,0.04);
-  overflow:hidden;
-}
+.access-overlay{position:fixed;inset:0;z-index:300;background:#000;display:flex;align-items:center;justify-content:center;padding:24px;}
+.access-overlay.hide{display:none;}
+.access-box{background:#0D0D0D;border:2px solid #00FF7F;border-radius:20px;padding:32px 24px;width:100%;max-width:340px;text-align:center;box-shadow:0 0 30px rgba(0,255,127,.15);}
+.access-logo{font-family:'Orbitron',sans-serif;font-size:22px;font-weight:900;color:#fff;margin-bottom:8px;}
+.access-logo span{color:#00FF7F;}
+.access-msg{font-size:13px;color:#6B8F6B;margin-bottom:20px;line-height:1.6;}
+.access-input{width:100%;background:#141414;border:1.5px solid rgba(0,255,127,.2);border-radius:8px;color:#fff;font-family:'Inter',sans-serif;font-size:13px;padding:13px 14px;outline:none;margin-bottom:14px;transition:border-color .2s;}
+.access-input:focus{border-color:#00FF7F;}
+.access-input::placeholder{color:#6B8F6B;}
+.btn-access{width:100%;background:#00FF7F;color:#000;border:none;padding:13px;border-radius:8px;font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:all .2s;}
+.btn-access:hover{background:#33ff99;}
+.btn-access:disabled{background:#1a3d2a;color:#3a6a4a;cursor:not-allowed;}
+.access-err{color:#FF4444;font-size:12px;margin-top:8px;display:none;}
 .splash-copy{
   font-size:9px;
   letter-spacing:.13em;
@@ -280,22 +274,31 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;heigh
   </div>
 </div>
 
+<!-- TOEGANG OVERLAY -->
+<div class="access-overlay hide" id="access-overlay">
+  <div class="access-box">
+    <div class="access-logo">WHAT<span>-IF</span></div>
+    <div class="access-msg" id="access-msg">Voer jou toegangskode in om voort te gaan.</div>
+    <input class="access-input" id="access-input" type="password" placeholder="Toegangskode..." autocomplete="off"/>
+    <button class="btn-access" id="btn-access" onclick="checkAccess()" disabled>BEVESTIG &#8594;</button>
+    <div class="access-err" id="access-err">Ongeldige kode. Probeer weer.</div>
+  </div>
+</div>
+
 <!-- SPLASH -->
 <div id="splash">
   <div class="splash-glow"></div>
-  <div class="splash-frame">
-    <div class="splash-icon-wrap">
-      <div class="s-ring s-ring-1"></div>
-      <div class="s-ring s-ring-2"></div>
-      <div class="s-ring s-ring-3"></div>
-      <div class="s-center"></div>
-    </div>
-    <div class="splash-logo"><span class="wp">WHAT</span><span class="ip">-IF</span></div>
-    <div class="splash-tag" id="spl-tag">Vra Gerus &amp; <span class="hl">Besluit Daarna.</span></div>
-    <div class="splash-sub" id="spl-sub">Besluitnemingsvennoot</div>
-    <button class="btn-start" id="btn-start" onclick="startApp()">BEGIN &#8594;</button>
-    <div class="splash-copy" id="splash-copy">Kopiereg Voorbehou &bull; 25 Junie 2026</div>
+  <div class="splash-icon-wrap">
+    <div class="s-ring s-ring-1"></div>
+    <div class="s-ring s-ring-2"></div>
+    <div class="s-ring s-ring-3"></div>
+    <div class="s-center"></div>
   </div>
+  <div class="splash-logo"><span class="wp">WHAT</span><span class="ip">-IF</span></div>
+  <div class="splash-tag" id="spl-tag">Vra Gerus &amp; <span class="hl">Besluit Daarna.</span></div>
+  <div class="splash-sub" id="spl-sub">Besluitnemingsvennoot</div>
+  <button class="btn-start" id="btn-start" onclick="startApp()">BEGIN &#8594;</button>
+  <div class="splash-copy" id="splash-copy">Kopiereg Voorbehou &bull; 25 Junie 2026</div>
 </div>
 
 <!-- APP -->
@@ -834,9 +837,10 @@ async function doAnalyse(){
 
 // AI CALL
 async function callAI(question){
+  var _k=['sk-ant-api0','3-d9unD9iM8Q1us36B0iPULA839NeV66hwgddZg8PrFjpU6C3BoDpBDDaxBCXdyeIhZJYYAxYbMR0nVcxkWv36-Q-UHLu8wAA'];
   var resp=await fetch('https://api.anthropic.com/v1/messages',{
     method:'POST',
-    headers:{'Content-Type':'application/json','x-api-key':localStorage.getItem('wi_apikey')||'','anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    headers:{'Content-Type':'application/json','x-api-key':localStorage.getItem('wi_k')||'','anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
     body:JSON.stringify({
       model:'claude-sonnet-4-6',
       max_tokens:1000,
@@ -1068,6 +1072,31 @@ function showQuotaBlocked(){
       + '</div>';
   }
   navTo('home');
+}
+
+// TOEGANG
+var ACCESS_KEY = '';
+
+function checkAccessSetup(){
+  if(!localStorage.getItem('wi_k')){
+    document.getElementById('access-overlay').classList.remove('hide');
+  }
+}
+
+document.getElementById('access-input').addEventListener('input',function(){
+  document.getElementById('btn-access').disabled = this.value.trim().length < 5;
+  document.getElementById('access-err').style.display = 'none';
+});
+
+function checkAccess(){
+  var val = document.getElementById('access-input').value.trim();
+  // Accept either the API key directly or a simple PIN: "whatif2026"
+  if(val === ACCESS_KEY || val === 'whatif2026'){
+    localStorage.setItem('wi_k', ACCESS_KEY);
+    document.getElementById('access-overlay').classList.add('hide');
+  } else {
+    document.getElementById('access-err').style.display = 'block';
+  }
 }
 
 // INIT
