@@ -1,0 +1,4 @@
+name = "what-if"
+main = "src/index.js"
+compatibility_date = "2024-01-01"
+account_id = "85d79d78d6ce558e16ca6541eeade826"
