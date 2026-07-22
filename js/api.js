@@ -2,7 +2,7 @@
 // SEKURITEIT: geen API-sleutel leef hier nie. Alle versoeke gaan deur die
 // Cloudflare Worker (WORKER_URL) wat die regte Anthropic-sleutel bediener-kant
 // as 'n geheime omgewingsveranderlike stoor. Sien DEPLOY.md vir opstel-instruksies.
-var WORKER_URL = 'https://what-if.vrede-kirsten.workers.dev';
+var WORKER_URL = 'https://what-if-worker.bakhuyz.workers.dev';
 
 async function callAI(question){
   var resourceContext = await getResourceContext();
